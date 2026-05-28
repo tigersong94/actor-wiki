@@ -11,8 +11,8 @@ async function tmdb(path: string, params: Record<string, string> = {}) {
   return res.json()
 }
 
-function TagSearchInput({ label, placeholder, value, onChange }: {
-  label: string, placeholder: string, value: string, onChange: (v: string) => void
+function TagSearchInput({ label, placeholder, value, onChange, searchType }: {
+  label: string, placeholder: string, value: string, onChange: (v: string) => void, searchType: 'movie' | 'person'
 }) {
   const [query, setQuery] = useState(value)
   const [results, setResults] = useState<any[]>([])
@@ -29,9 +29,11 @@ function TagSearchInput({ label, placeholder, value, onChange }: {
     timer.current = setTimeout(async () => {
       const data = await tmdb('/search/multi', { query: q, page: '1' })
       const results = data.results || []
-      const movies = results.filter((r: any) => r.media_type === 'movie' || r.media_type === 'tv').slice(0, 4)
-      const people = results.filter((r: any) => r.media_type === 'person').slice(0, 4)
-      setResults([...movies, ...people])
+      if (searchType === 'movie') {
+        setResults(results.filter((r: any) => r.media_type === 'movie' || r.media_type === 'tv').slice(0, 6))
+      } else {
+        setResults(results.filter((r: any) => r.media_type === 'person').slice(0, 6))
+      }
       setOpen(true)
     }, 300)
   }
@@ -44,30 +46,17 @@ function TagSearchInput({ label, placeholder, value, onChange }: {
     setResults([])
   }
 
-  function onClear() {
-    setQuery('')
-    setSelected(false)
-    onChange('')
-    setResults([])
-    setOpen(false)
-  }
-
   return (
     <div style={{ marginBottom: '14px' }}>
       <label style={{ fontSize: '11px', letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '6px', display: 'block' }}>{label}</label>
       <div style={{ position: 'relative' }}>
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <input
-            style={{ flex: 1, background: selected ? 'rgba(201,168,76,.08)' : 'var(--surface2)', border: `1px solid ${selected ? 'var(--gold)' : 'var(--border)'}`, borderRadius: 'var(--radius)', padding: '10px 14px', color: selected ? 'var(--gold)' : 'var(--text)', fontFamily: 'Noto Sans KR', fontSize: '13px', outline: 'none' }}
-            value={query}
-            onChange={e => onInput(e.target.value)}
-            placeholder={placeholder}
-            onFocus={() => query && !selected && setOpen(true)}
-          />
-          {query && (
-            <button onClick={onClear} style={{ background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '10px 14px', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '13px', fontFamily: 'Noto Sans KR' }}>공란</button>
-          )}
-        </div>
+        <input
+          style={{ width: '100%', background: selected ? 'rgba(201,168,76,.08)' : 'var(--surface2)', border: `1px solid ${selected ? 'var(--gold)' : 'var(--border)'}`, borderRadius: 'var(--radius)', padding: '10px 14px', color: selected ? 'var(--gold)' : 'var(--text)', fontFamily: 'Noto Sans KR', fontSize: '13px', outline: 'none' }}
+          value={query}
+          onChange={e => onInput(e.target.value)}
+          placeholder={placeholder}
+          onFocus={() => query && !selected && setOpen(true)}
+        />
         {selected && (
           <div style={{ marginTop: '4px', fontSize: '11px', color: 'var(--gold)' }}>✓ 선택됨</div>
         )}
@@ -118,8 +107,8 @@ export default function Community() {
   async function submitPost() {
     if (!form.title || !form.body) { alert('제목과 내용을 입력해주세요.'); return }
     await supabase.from('posts').insert([{
-      movie: form.movie || '(작품 없음)',
-      actor: form.actor || '(배우 없음)',
+      movie: form.movie || null,
+      actor: form.actor || null,
       title: form.title,
       body: form.body,
       nickname: '익명'
@@ -130,8 +119,8 @@ export default function Community() {
   }
 
   const filtered = filter === 'all' ? posts : posts.filter(p => p.movie === filter || p.actor === filter)
-  const movieTags = [...new Set(posts.map(p => p.movie))].slice(0, 6)
-  const actorTags = [...new Set(posts.map(p => p.actor))].slice(0, 6)
+  const movieTags = [...new Set(posts.map(p => p.movie).filter(Boolean))].slice(0, 6)
+  const actorTags = [...new Set(posts.map(p => p.actor).filter(Boolean))].slice(0, 6)
 
   return (
     <div className="layout">
@@ -155,8 +144,8 @@ export default function Community() {
             {filtered.map(p => (
               <div key={p.id} className="post-card">
                 <div className="post-card-tags">
-                  {p.movie && p.movie !== '(작품 없음)' && <span className="post-tag tag-movie">{p.movie}</span>}
-                  {p.actor && p.actor !== '(배우 없음)' && <span className="post-tag tag-actor">{p.actor}</span>}
+                  {p.movie && <span className="post-tag tag-movie">{p.movie}</span>}
+                  {p.actor && <span className="post-tag tag-actor">{p.actor}</span>}
                 </div>
                 <div className="post-card-title">{p.title}</div>
                 <div className="post-card-body">{p.body}</div>
@@ -175,7 +164,7 @@ export default function Community() {
         <div className="sidebar-block">
           <div className="sidebar-title">인기 작품 말머리</div>
           <ul className="sidebar-list">
-            {movieTags.filter(t => t !== '(작품 없음)').map(tag => (
+            {movieTags.map(tag => (
               <li key={tag} onClick={() => setFilter(tag)}>{tag}</li>
             ))}
           </ul>
@@ -183,7 +172,7 @@ export default function Community() {
         <div className="sidebar-block">
           <div className="sidebar-title">인기 배우 말머리</div>
           <ul className="sidebar-list">
-            {actorTags.filter(t => t !== '(배우 없음)').map(tag => (
+            {actorTags.map(tag => (
               <li key={tag} onClick={() => setFilter(tag)}>{tag}</li>
             ))}
           </ul>
@@ -195,38 +184,18 @@ export default function Community() {
           onClick={e => e.target === e.currentTarget && setShowModal(false)}>
           <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '10px', width: '540px', maxWidth: '95vw', maxHeight: '90vh', overflowY: 'auto', padding: '28px' }}>
             <div style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '22px', fontWeight: 700, marginBottom: '6px' }}>포스팅</div>
-            <div style={{ color: 'var(--text-muted)', fontSize: '12px', marginBottom: '20px' }}>말머리는 검색해서 선택하거나 공란으로 둘 수 있어요.</div>
+            <div style={{ color: 'var(--text-muted)', fontSize: '12px', marginBottom: '20px' }}>말머리는 검색해서 선택하거나 비워둘 수 있어요.</div>
 
-            <TagSearchInput
-              label="작품명 (말머리 1)"
-              placeholder="작품 검색..."
-              value={form.movie}
-              onChange={v => setForm(f => ({ ...f, movie: v }))}
-            />
-            <TagSearchInput
-              label="배우명 (말머리 2)"
-              placeholder="배우 검색..."
-              value={form.actor}
-              onChange={v => setForm(f => ({ ...f, actor: v }))}
-            />
+            <TagSearchInput label="작품명 (말머리 1)" placeholder="작품 검색..." value={form.movie} onChange={v => setForm(f => ({ ...f, movie: v }))} searchType="movie" />
+            <TagSearchInput label="배우명 (말머리 2)" placeholder="배우 검색..." value={form.actor} onChange={v => setForm(f => ({ ...f, actor: v }))} searchType="person" />
 
             <div style={{ marginBottom: '14px' }}>
               <label style={{ fontSize: '11px', letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '6px', display: 'block' }}>제목</label>
-              <input
-                style={{ width: '100%', background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '10px 14px', color: 'var(--text)', fontFamily: 'Noto Sans KR', fontSize: '13px', outline: 'none' }}
-                value={form.title}
-                onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
-                placeholder="제목을 입력하세요"
-              />
+              <input style={{ width: '100%', background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '10px 14px', color: 'var(--text)', fontFamily: 'Noto Sans KR', fontSize: '13px', outline: 'none' }} value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="제목을 입력하세요" />
             </div>
             <div style={{ marginBottom: '14px' }}>
               <label style={{ fontSize: '11px', letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '6px', display: 'block' }}>내용</label>
-              <textarea
-                style={{ width: '100%', background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '10px 14px', color: 'var(--text)', fontFamily: 'Noto Sans KR', fontSize: '13px', outline: 'none', minHeight: '120px', resize: 'vertical' }}
-                value={form.body}
-                onChange={e => setForm(f => ({ ...f, body: e.target.value }))}
-                placeholder="자유롭게 작성하세요..."
-              />
+              <textarea style={{ width: '100%', background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '10px 14px', color: 'var(--text)', fontFamily: 'Noto Sans KR', fontSize: '13px', outline: 'none', minHeight: '120px', resize: 'vertical' }} value={form.body} onChange={e => setForm(f => ({ ...f, body: e.target.value }))} placeholder="자유롭게 작성하세요..." />
             </div>
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
               <button onClick={() => setShowModal(false)} style={{ background: 'none', border: '1px solid var(--border)', color: 'var(--text-muted)', padding: '9px 20px', borderRadius: 'var(--radius)', cursor: 'pointer', fontFamily: 'Noto Sans KR', fontSize: '13px' }}>취소</button>
