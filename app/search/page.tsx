@@ -1,7 +1,6 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
-import { Suspense } from 'react'
 
 const API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY
 const IMG = 'https://image.tmdb.org/t/p/'
@@ -37,17 +36,15 @@ function SearchContent() {
 
   return (
     <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '24px 16px' }}>
-      <div style={{ marginBottom: '20px', color: 'var(--text-muted)', fontSize: '13px' }}>
-        <button onClick={() => router.back()} className="back-btn">← 돌아가기</button>
-        <span>"{q}" 검색 결과</span>
-      </div>
+      <button onClick={() => router.back()} className="back-btn">← 돌아가기</button>
+      <div style={{ marginBottom: '20px', color: 'var(--text-muted)', fontSize: '13px' }}>"{q}" 검색 결과</div>
 
       {loading ? (
         <div className="loading"><div className="spinner" /><br />검색 중...</div>
       ) : (
-        <>
+        <div>
           {movies.length > 0 && (
-            <>
+            <div>
               <div className="section-label">영화·드라마</div>
               <div className="movie-grid" style={{ marginBottom: '32px' }}>
                 {movies.map(m => (
@@ -63,11 +60,11 @@ function SearchContent() {
                   </div>
                 ))}
               </div>
-            </>
+            </div>
           )}
 
           {people.length > 0 && (
-            <>
+            <div>
               <div className="section-label">배우·인물</div>
               <div className="actor-grid" style={{ marginBottom: '32px' }}>
                 {people.map(p => (
@@ -80,9 +77,22 @@ function SearchContent() {
                   </div>
                 ))}
               </div>
-            </>
+            </div>
           )}
 
           {movies.length === 0 && people.length === 0 && (
             <div className="post-empty">검색 결과가 없어요.</div>
           )}
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense fallback={<div className="loading"><div className="spinner" /></div>}>
+      <SearchContent />
+    </Suspense>
+  )
+}
