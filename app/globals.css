@@ -17,7 +17,7 @@ header { background: var(--surface); border-bottom: 1px solid var(--border); pos
 
 .home-hero { background: linear-gradient(135deg, #111118 0%, #1a1520 50%, #111118 100%); border-bottom: 1px solid var(--border); padding: 56px 20px 48px; text-align: center; position: relative; overflow: hidden; }
 .home-hero h1 { font-family: 'Cormorant Garamond', serif; font-size: 58px; color: var(--gold); letter-spacing: 4px; margin-bottom: 10px; font-weight: 700; }
-.home-hero .tagline { color: var(--text-muted); font-size: 20px; margin-bottom: 6px; font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 600; }
+.home-hero .tagline { color: var(--text-muted); font-size: 20px; margin-bottom: 6px; font-family: 'Jua', sans-serif; font-style: normal; font-weight: 600; }
 .home-hero .subtitle { color: var(--text-dim); font-size: 9px; margin-bottom: 32px; letter-spacing: 1.5px; }
 .home-search-wrap { max-width: 520px; margin: 0 auto; display: flex; gap: 8px; position: relative; }
 .home-search-input-wrap { flex: 1; position: relative; }
