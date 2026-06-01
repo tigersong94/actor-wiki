@@ -89,9 +89,9 @@ export default function Home() {
   return (
     <>
       <div className="home-hero">
-        <h1>Actor who?</h1>
-        <p className="tagline">어디서 봤더라?</p>
-        <p className="subtitle">Serviced by. Qho</p>
+        <h1 style={{ fontWeight: 900 }}>Actor who?</h1>
+        <p className="tagline">그 배우, 전에 어디서 봤더라?</p>
+        <p className="subtitle">Actor-Wiki by Qho</p>
         <div className="home-search-wrap">
           <div className="home-search-input-wrap">
             <span className="home-search-icon">🔍</span>
