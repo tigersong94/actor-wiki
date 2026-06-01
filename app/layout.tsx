@@ -8,11 +8,10 @@ export const metadata: Metadata = {
   openGraph: {
     title: '배우위키',
     description: '이 배우 어디서 봤더라?',
-    url: 'https://actor-wiki-v2.vercel.app',
-    siteName: '배우위키',
-    images: [
-      {
-        url: 'https://actor-wiki-v2.vercel.app/og-image.png',
+url: 'https://actorwho.com',
+images: [
+  {
+    url: 'https://actorwho.com/og-image.png',
         width: 1200,
         height: 630,
       }
