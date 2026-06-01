@@ -1,5 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
-@import url('https://cdn.jsdelivr.net/gh/fonts-archive/GmarketSans/GmarketSans.css');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Noto+Sans+KR:wght@300;400;500;700&family=Jua&display=swap');
 
 :root {
   --bg: #0d0d0f; --surface: #16161a; --surface2: #1e1e24;
@@ -11,7 +10,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Noto Sans KR', s
 
 header { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
 .header-inner { max-width: 1100px; margin: 0 auto; padding: 0 16px; height: 56px; display: flex; align-items: center; }
-.logo { font-family: 'GmarketSans', 'Noto Sans KR', sans-serif; font-size: 20px; color: var(--gold); letter-spacing: 1px; cursor: pointer; font-weight: 700; text-decoration: none; }
+.logo { font-family: 'Jua', 'Noto Sans KR', sans-serif; font-size: 24px; color: var(--gold); letter-spacing: 1px; cursor: pointer; font-weight: 400; text-decoration: none; }
 .header-nav { display: flex; gap: 2px; margin-left: auto; }
 .header-nav a { background: none; border: none; color: var(--text-muted); font-family: 'Noto Sans KR'; font-size: 13px; padding: 8px 12px; border-radius: var(--radius); cursor: pointer; transition: color .2s, background .2s; text-decoration: none; display: inline-block; }
 .header-nav a:hover, .header-nav a.active { color: var(--gold); background: rgba(201,168,76,.08); }
@@ -83,8 +82,26 @@ header { background: var(--surface); border-bottom: 1px solid var(--border); pos
 
 .write-btn { background: var(--gold); color: var(--bg); border: none; border-radius: 20px; padding: 8px 20px; font-family: 'Noto Sans KR'; font-size: 13px; font-weight: 700; cursor: pointer; }
 .write-btn:hover { background: var(--gold-light); }
-.filter-chip { background: var(--surface2); border: 1px solid var(--border); color: var(--text-muted); font-size: 12px; padding: 5px 12px; border-radius: 20px; cursor: pointer; transition: all .2s; }
+.filter-chip { background: var(--surface2); border: 1px solid var(--border); color: var(--text-muted); font-size: 12px; padding: 5px 12px; border-radius: 20px; cursor: pointer; transition: all .2s; display: inline-flex; align-items: center; }
 .filter-chip:hover, .filter-chip.active { border-color: var(--gold); color: var(--gold); background: rgba(201,168,76,.08); }
+
+.post-detail { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; }
+.post-detail-tags { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+.post-detail-title { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 700; margin-bottom: 10px; }
+.post-detail-meta { display: flex; gap: 14px; color: var(--text-muted); font-size: 12px; margin-bottom: 18px; padding-bottom: 18px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+.post-detail-body { font-size: 14px; line-height: 1.9; color: var(--text-muted); }
+.post-detail-body p { margin-bottom: 12px; }
+.comment-section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; }
+.comment-head { font-size: 13px; font-weight: 500; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+.comment-item { padding: 12px 0; border-bottom: 1px solid var(--border); }
+.comment-item:last-of-type { border-bottom: none; }
+.comment-author { font-size: 12px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+.comment-author span { color: var(--text-muted); font-weight: 400; margin-left: 8px; }
+.comment-body { font-size: 13px; color: var(--text-muted); line-height: 1.7; }
+.comment-input-row { display: flex; gap: 10px; }
+.comment-input-row input { flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 9px 14px; color: var(--text); font-family: 'Noto Sans KR'; font-size: 13px; outline: none; transition: border-color .2s; }
+.comment-input-row input:focus { border-color: var(--gold); }
+.comment-input-row button { background: var(--gold); border: none; border-radius: var(--radius); padding: 9px 16px; color: var(--bg); font-family: 'Noto Sans KR'; font-size: 13px; font-weight: 700; cursor: pointer; }
 
 .sidebar-block { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 14px; }
 .sidebar-title { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; }
@@ -94,7 +111,7 @@ header { background: var(--surface); border-bottom: 1px solid var(--border); pos
 .sidebar-list li:hover { color: var(--text); }
 .sidebar-list .cnt { color: var(--text-dim); font-size: 11px; }
 
-.mobile-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: var(--surface); border-top: 1px solid var(--border); z-index: 100; padding: 8px 0; }
+.mobile-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: var(--surface); border-top: 1px solid var(--border); z-index: 100; padding: 8px 0 env(safe-area-inset-bottom, 8px); }
 .mobile-nav-inner { display: flex; justify-content: space-around; }
 .mobile-nav-btn { background: none; border: none; color: var(--text-muted); font-family: 'Noto Sans KR'; font-size: 10px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 4px 20px; transition: color .2s; text-decoration: none; }
 .mobile-nav-btn .nav-icon { font-size: 20px; }

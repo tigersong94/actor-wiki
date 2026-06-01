@@ -8,7 +8,7 @@ export default function Header() {
     <>
       <header>
         <div className="header-inner">
-          <Link href="/" className="logo">배우위키</Link>
+          <Link href="/" className="logo">배위</Link>
           <nav className="header-nav">
             <Link href="/" className={pathname === '/' ? 'active' : ''}>홈</Link>
             <Link href="/community" className={pathname === '/community' ? 'active' : ''}>커뮤니티</Link>
