@@ -593,7 +593,7 @@ export default function Community() {
           onClick={e => e.target === e.currentTarget && setShowModal(false)}
         >
           <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '10px', width: '540px', maxWidth: '95vw', maxHeight: '90vh', overflowY: 'auto', padding: '28px' }}>
-            <div style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '22px', fontWeight: 700, marginBottom: '6px' }}>포스팅</div>
+           <div style={{ fontFamily: 'Jua, sans-serif', fontSize: '22px', fontWeight: 700, marginBottom: '6px' }}>포스팅</div>
             <div style={{ color: 'var(--text-muted)', fontSize: '12px', marginBottom: '20px' }}>말머리는 작품/배우 각각 최대 3개까지 선택할 수 있어요.</div>
 
             <MovieSearchInput
