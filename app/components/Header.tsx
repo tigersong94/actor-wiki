@@ -1,9 +1,12 @@
 'use client'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useState } from 'react'
 
 export default function Header() {
   const pathname = usePathname()
+  const [menuOpen, setMenuOpen] = useState(false)
+
   return (
     <>
       <header>
@@ -13,8 +16,30 @@ export default function Header() {
             <Link href="/" className={pathname === '/' ? 'active' : ''}>홈</Link>
             <Link href="/community" className={pathname === '/community' ? 'active' : ''}>커뮤니티</Link>
           </nav>
+          <button className="menu-btn" onClick={() => setMenuOpen(true)}>☰</button>
         </div>
       </header>
+
+      {/* 오버레이 */}
+      {menuOpen && (
+        <div className="drawer-overlay" onClick={() => setMenuOpen(false)} />
+      )}
+
+      {/* 사이드 드로어 */}
+      <div className={`drawer ${menuOpen ? 'open' : ''}`}>
+        <div className="drawer-header">
+          <span className="drawer-title">배위</span>
+          <button className="drawer-close" onClick={() => setMenuOpen(false)}>✕</button>
+        </div>
+        <nav className="drawer-nav">
+          <Link href="/" onClick={() => setMenuOpen(false)}>🏠 홈</Link>
+          <Link href="/community" onClick={() => setMenuOpen(false)}>💬 커뮤니티</Link>
+        </nav>
+        <div className="drawer-footer">
+          ⚙️ 개인설정
+        </div>
+      </div>
+
       <nav className="mobile-nav">
         <div className="mobile-nav-inner">
           <Link href="/" className={`mobile-nav-btn ${pathname === '/' ? 'active' : ''}`}>

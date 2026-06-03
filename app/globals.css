@@ -128,4 +128,90 @@ header { background: var(--surface); border-bottom: 1px solid var(--border); pos
   .home-hero .tagline { font-size: 17px; }
   .movie-grid { grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 8px; }
   .actor-grid { grid-template-columns: repeat(auto-fill, minmax(78px, 1fr)); gap: 8px; }
+}/* 햄버거 버튼 */
+.menu-btn {
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  color: var(--text);
+  margin-left: auto;
+}
+
+/* 오버레이 */
+.drawer-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 100;
+}
+
+/* 드로어 */
+.drawer {
+  position: fixed;
+  top: 0;
+  right: -280px;
+  width: 280px;
+  height: 100%;
+  background: var(--surface);
+  z-index: 101;
+  transition: right 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+
+.drawer.open {
+  right: 0;
+}
+
+.drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.drawer-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.drawer-close {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: var(--text);
+}
+
+.drawer-nav {
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  gap: 4px;
+  flex: 1;
+}
+
+.drawer-nav a {
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 1rem;
+  color: var(--text);
+  text-decoration: none;
+  transition: background 0.15s;
+}
+
+.drawer-nav a:hover {
+  background: var(--border);
+}
+
+.drawer-footer {
+  padding: 20px;
+  border-top: 1px solid var(--border);
+  font-size: 0.95rem;
+  cursor: pointer;
+  color: var(--text);
 }
