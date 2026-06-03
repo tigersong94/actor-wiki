@@ -496,9 +496,13 @@ export default function Community() {
     return true
   })
 
-  const hotPosts = [...posts]
-    .sort((a, b) => (b.likes || 0) - (a.likes || 0))
-    .filter(p => (p.likes || 0) > 0)
+const hotPosts = [...posts]
+    .filter(p => (p.likes || 0) > 0 || (p.comment_count || 0) > 0)
+    .sort((a, b) => {
+      const scoreA = (a.likes || 0) * 2 + (a.comment_count || 0)
+      const scoreB = (b.likes || 0) * 2 + (b.comment_count || 0)
+      return scoreB - scoreA
+    })
 
   const finalPosts = tab === 'hot' ? hotPosts : displayPosts
 
