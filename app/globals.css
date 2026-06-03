@@ -238,3 +238,110 @@ header { background: var(--surface); border-bottom: 1px solid var(--border); pos
   border-radius: 4px;
   font-weight: 700;
 }
+/* 요즘 볼만한 거 */
+.now-loading {
+  text-align: center;
+  padding: 40px;
+  color: var(--text-muted);
+}
+
+.now-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px 16px 80px;
+}
+
+.now-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.now-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  overflow: hidden;
+}
+
+.now-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-content: start;
+}
+
+.now-section-title {
+  grid-column: 1 / -1;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--border);
+}
+
+.now-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color .2s, transform .2s;
+}
+
+.now-card:hover {
+  border-color: var(--gold);
+  transform: translateY(-2px);
+}
+
+.now-card-poster-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 2/3;
+  background: var(--border);
+}
+
+.now-card-poster {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.now-card-poster-empty {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(160deg, #181520, #201828);
+}
+
+.now-rank-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: rgba(0,0,0,0.7);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 20px;
+  z-index: 1;
+}
+
+.now-info {
+  padding: 10px 12px;
+}
+
+.now-movie-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.now-meta {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
