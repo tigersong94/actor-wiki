@@ -20,12 +20,10 @@ export default function Header() {
         </div>
       </header>
 
-      {/* 오버레이 */}
       {menuOpen && (
         <div className="drawer-overlay" onClick={() => setMenuOpen(false)} />
       )}
 
-      {/* 사이드 드로어 */}
       <div className={`drawer ${menuOpen ? 'open' : ''}`}>
         <div className="drawer-header">
           <span className="drawer-title">배위</span>
@@ -34,6 +32,10 @@ export default function Header() {
         <nav className="drawer-nav">
           <Link href="/" onClick={() => setMenuOpen(false)}>🏠 홈</Link>
           <Link href="/community" onClick={() => setMenuOpen(false)}>💬 커뮤니티</Link>
+          <Link href="/now" onClick={() => setMenuOpen(false)}>🎬 요즘 볼만한 거</Link>
+          <div className="drawer-nav-item disabled">
+            🪞 AI 닮은꼴 배우 찾기 <span className="beta-badge">Beta</span>
+          </div>
         </nav>
         <div className="drawer-footer">
           ⚙️ 개인설정
