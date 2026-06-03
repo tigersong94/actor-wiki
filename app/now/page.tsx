@@ -41,8 +41,8 @@ const movieData = await movieRes.json()
 const tvData = await tvRes.json()
 
 const combined = [
-  ...(movieData.results || []).filter((m: any) => m.original_language === 'ko').slice(0, 5).map((m: any) => ({ ...m, media_type: 'movie' })),
-  ...(tvData.results || []).filter((t: any) => t.original_language === 'ko').slice(0, 5).map((t: any) => ({ ...t, media_type: 'tv' }))
+...(movieData.results || []).filter((m: any) => m.original_language === 'ko').slice(0, 8).map((m: any) => ({ ...m, media_type: 'movie' })),
+...(tvData.results || []).filter((t: any) => t.original_language === 'ko').slice(0, 8).map((t: any) => ({ ...t, media_type: 'tv' }))
 ].sort((a, b) => b.popularity - a.popularity).slice(0, 10)
 
         setOttMovies(combined)
