@@ -102,22 +102,24 @@ export default function Home() {
               onChange={e => onSearchInput(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && doSearch()}
             />
-            {dropdownOpen && searchResults.length > 0 && (
-              <div className="search-dropdown open">
-                {searchResults.filter(r => r.media_type === 'movie' || r.media_type === 'tv').slice(0, 4).map(m => (
-                  <div key={m.id} className="search-item" onClick={() => { router.push(`/${m.media_type}/${m.id}`); setDropdownOpen(false); setSearchQuery('') }}>
-                    {m.poster_path ? <img src={imgSrc(m.poster_path, 'w92')!} alt="" /> : <div className="si-img-placeholder" />}
-                    <div><div className="si-title">{m.title || m.name}</div><div className="si-sub">{(m.release_date || m.first_air_date || '').slice(0,4)} · {m.media_type === 'tv' ? '드라마' : '영화'}</div></div>
-                  </div>
-                ))}
-                {searchResults.filter(r => r.media_type === 'person').slice(0, 3).map(p => (
-                  <div key={p.id} className="search-item" onClick={() => { router.push(`/actor/${p.id}`); setDropdownOpen(false); setSearchQuery('') }}>
-                    {p.profile_path ? <img src={imgSrc(p.profile_path, 'w92')!} alt={p.name} /> : <div className="si-img-placeholder" />}
-                    <div><div className="si-title">{p.name}</div><div className="si-sub">배우</div></div>
-                  </div>
-                ))}
-              </div>
-            )}
+         {dropdownOpen && searchResults.length > 0 && (
+  <div className="search-dropdown open">
+    {searchResults
+      .filter(r => r.media_type === 'movie' || r.media_type === 'tv' || r.media_type === 'person')
+      .slice(0, 10)
+      .map(r => r.media_type === 'person' ? (
+        <div key={r.id} className="search-item" onClick={() => { router.push(`/actor/${r.id}`); setDropdownOpen(false); setSearchQuery('') }}>
+          {r.profile_path ? <img src={imgSrc(r.profile_path, 'w92')!} alt={r.name} /> : <div className="si-img-placeholder" />}
+          <div><div className="si-title">{r.name}</div><div className="si-sub">배우</div></div>
+        </div>
+      ) : (
+        <div key={r.id} className="search-item" onClick={() => { router.push(`/${r.media_type}/${r.id}`); setDropdownOpen(false); setSearchQuery('') }}>
+          {r.poster_path ? <img src={imgSrc(r.poster_path, 'w92')!} alt="" /> : <div className="si-img-placeholder" />}
+          <div><div className="si-title">{r.title || r.name}</div><div className="si-sub">{(r.release_date || r.first_air_date || '').slice(0,4)} · {r.media_type === 'tv' ? '드라마' : '영화'}</div></div>
+        </div>
+      ))}
+  </div>
+)}
           </div>
           <button className="home-search-btn" onClick={doSearch}>검색</button>
         </div>

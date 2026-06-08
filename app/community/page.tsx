@@ -1,5 +1,6 @@
 'use client'
 import { useState, useEffect, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 import { supabase } from '../lib/supabase'
 
 const API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY
@@ -188,10 +189,10 @@ function PostCard({ post, onLike, onClick }: { post: any, onLike: (id: number) =
   const liked = hasLiked('post', post.id)
 
   return (
-    <div className="post-card" onClick={() => onClick(post)}>
-      <div className="post-card-tags">
-        {movies.map(m => <span key={m} className="post-tag tag-movie">{m}</span>)}
-        {actors.map(a => <span key={a} className="post-tag tag-actor">{a}</span>)}
+<div className="post-card" onClick={() => onClick(post)}>
+  <div className="post-card-tags">
+    {movies.map(m => <span key={m} className="post-tag tag-movie" onClick={e => { e.stopPropagation(); router.push(`/search?q=${encodeURIComponent(m)}`) }}>{m}</span>)}
+    {actors.map(a => <span key={a} className="post-tag tag-actor" onClick={e => { e.stopPropagation(); router.push(`/search?q=${encodeURIComponent(a)}`) }}>{a}</span>)}
       </div>
       {/* 제목 없이 본문만 */}
       <div className="post-card-body" style={{ marginTop: movies.length + actors.length > 0 ? '10px' : '0' }}>
@@ -280,6 +281,7 @@ function CommentItem({ comment, allComments, onLike, onReply }: {
 
 // ── 포스트 상세 ────────────────────────────────────────────────
 function PostDetail({ post, onBack, onLike }: { post: any, onBack: () => void, onLike: (id: number) => void }) {
+  const router = useRouter()
   const [comments, setComments] = useState<any[]>([])
   const [commentBody, setCommentBody] = useState('')
   const [commentNick, setCommentNick] = useState('')
@@ -341,10 +343,10 @@ function PostDetail({ post, onBack, onLike }: { post: any, onBack: () => void, o
     <div>
       <button className="back-btn" onClick={onBack}>← 커뮤니티로</button>
       <div className="post-detail">
-        <div className="post-detail-tags">
-          {movies.map(m => <span key={m} className="post-tag tag-movie">{m}</span>)}
-          {actors.map(a => <span key={a} className="post-tag tag-actor">{a}</span>)}
-        </div>
+<div className="post-detail-tags">
+  {movies.map(m => <span key={m} className="post-tag tag-movie" onClick={() => router.push(`/search?q=${encodeURIComponent(m)}`)} style={{ cursor: 'pointer' }}>{m}</span>)}
+  {actors.map(a => <span key={a} className="post-tag tag-actor" onClick={() => router.push(`/search?q=${encodeURIComponent(a)}`)} style={{ cursor: 'pointer' }}>{a}</span>)}
+</div>
 
         {/* 제목 없이 본문만 */}
         <div className="post-detail-body" style={{ marginTop: movies.length + actors.length > 0 ? '14px' : '0' }}>
