@@ -19,6 +19,7 @@ export default function ActorPage() {
   const router = useRouter()
   const [detail, setDetail] = useState<any>(null)
   const [filmography, setFilmography] = useState<any[]>([])
+  const [stills, setStills] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -32,6 +33,10 @@ export default function ActorPage() {
         (b.release_date || b.first_air_date || '').localeCompare(a.release_date || a.first_air_date || '')
       ).slice(0, 30)
       setFilmography(films)
+      const topFilms = [...(c.cast || [])].sort((a, b) =>
+        (b.release_date || b.first_air_date || '').localeCompare(a.release_date || a.first_air_date || '')
+      ).filter(f => f.poster_path).slice(0, 8)
+      setStills(topFilms)
       setLoading(false)
     })
   }, [id])
@@ -61,13 +66,37 @@ export default function ActorPage() {
               {age && <div><div style={{ fontSize: '22px', fontWeight: 700, color: 'var(--gold)', fontFamily: 'Cormorant Garamond, serif' }}>{age}</div><div style={{ fontSize: '10px', color: 'var(--text-muted)', marginTop: '2px' }}>나이</div></div>}
               {detail.birthday && <div><div style={{ fontSize: '22px', fontWeight: 700, color: 'var(--gold)', fontFamily: 'Cormorant Garamond, serif' }}>{detail.birthday.slice(0,4)}</div><div style={{ fontSize: '10px', color: 'var(--text-muted)', marginTop: '2px' }}>출생</div></div>}
             </div>
-
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
               <a style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', background: 'var(--surface2)', border: '1px solid var(--border)', color: 'var(--text-muted)', fontSize: '12px', padding: '5px 12px', borderRadius: '20px', cursor: 'pointer', textDecoration: 'none' }} onClick={() => window.open(`https://namu.wiki/w/${encodeURIComponent(koreanName)}`, '_blank')}>📖 나무위키</a>
               <a style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', background: 'var(--surface2)', border: '1px solid var(--border)', color: 'var(--text-muted)', fontSize: '12px', padding: '5px 12px', borderRadius: '20px', cursor: 'pointer', textDecoration: 'none' }} href={`https://search.naver.com/search.naver?query=${encodeURIComponent(koreanName + ' 배우')}`} target="_blank">🔍 네이버</a>
             </div>
           </div>
         </div>
+
+        {/* 출연작 포스터 */}
+        {stills.length > 0 && (
+          <div style={{ marginBottom: '24px' }}>
+            <div style={{ fontSize: '11px', letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--gold)', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+              출연작
+              <span style={{ flex: 1, height: '1px', background: 'var(--border)', display: 'block' }} />
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))', gap: '8px' }}>
+              {stills.map((f, i) => (
+                <div key={i} onClick={() => router.push(`/${f.media_type === 'tv' ? 'tv' : 'movie'}/${f.id}`)}
+                  style={{ cursor: 'pointer', borderRadius: 'var(--radius)', overflow: 'hidden', border: '1px solid var(--border)', transition: 'border-color .2s' }}
+                  onMouseOver={e => (e.currentTarget.style.borderColor = 'var(--gold)')}
+                  onMouseOut={e => (e.currentTarget.style.borderColor = 'var(--border)')}
+                >
+                  <img
+                    src={`${IMG}w185${f.poster_path}`}
+                    alt={f.title || f.name}
+                    style={{ width: '100%', aspectRatio: '2/3', objectFit: 'cover', display: 'block' }}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div style={{ borderBottom: '1px solid var(--border)', marginBottom: '20px' }}>
           <button style={{ background: 'none', border: 'none', borderBottom: '2px solid var(--gold)', color: 'var(--gold)', fontFamily: 'Noto Sans KR', fontSize: '13px', fontWeight: 500, padding: '10px 18px', cursor: 'pointer', marginBottom: '-1px' }}>필모그래피</button>
@@ -94,23 +123,23 @@ export default function ActorPage() {
                       onMouseOut={e => (e.currentTarget.style.color = 'var(--text)')}
                     >{f.title || f.name || '-'}</span>
                   </td>
-<td style={{ padding: '10px 12px' }}>
-  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-    {f.character
-      ? <span style={{ display: 'inline-block', background: ko ? 'rgba(201,168,76,.1)' : 'rgba(255,255,255,.04)', border: `1px solid ${ko ? 'rgba(201,168,76,.2)' : 'var(--border)'}`, color: ko ? 'var(--gold-light)' : 'var(--text-dim)', fontSize: '11px', padding: '2px 8px', borderRadius: '20px', fontStyle: ko ? 'normal' : 'italic' }}>{f.character}</span>
-      : <span style={{ color: 'var(--text-dim)', fontSize: '13px' }}>-</span>
-    }
-    <span style={{ display: 'inline-block', fontSize: '10px', padding: '2px 7px', borderRadius: '20px', border: '1px solid', whiteSpace: 'nowrap',
-      ...(f.order === undefined ? {} : f.order <= 2
-        ? { color: '#e8c97a', borderColor: 'rgba(232,201,122,.3)', background: 'rgba(232,201,122,.08)' }
-        : f.order <= 9
-        ? { color: '#7db8e8', borderColor: 'rgba(125,184,232,.3)', background: 'rgba(125,184,232,.08)' }
-        : { color: 'var(--text-dim)', borderColor: 'var(--border)', background: 'rgba(255,255,255,.04)' })
-    }}>
-      {f.order === undefined ? '특별출연' : f.order <= 2 ? '주연' : f.order <= 9 ? '조연' : '특별출연'}
-    </span>
-  </div>
-</td>
+                  <td style={{ padding: '10px 12px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                      {f.character
+                        ? <span style={{ display: 'inline-block', background: ko ? 'rgba(201,168,76,.1)' : 'rgba(255,255,255,.04)', border: `1px solid ${ko ? 'rgba(201,168,76,.2)' : 'var(--border)'}`, color: ko ? 'var(--gold-light)' : 'var(--text-dim)', fontSize: '11px', padding: '2px 8px', borderRadius: '20px', fontStyle: ko ? 'normal' : 'italic' }}>{f.character}</span>
+                        : <span style={{ color: 'var(--text-dim)', fontSize: '13px' }}>-</span>
+                      }
+                      <span style={{ display: 'inline-block', fontSize: '10px', padding: '2px 7px', borderRadius: '20px', border: '1px solid', whiteSpace: 'nowrap',
+                        ...(f.order === undefined ? { color: 'var(--text-dim)', borderColor: 'var(--border)', background: 'rgba(255,255,255,.04)' } : f.order <= 2
+                          ? { color: '#e8c97a', borderColor: 'rgba(232,201,122,.3)', background: 'rgba(232,201,122,.08)' }
+                          : f.order <= 9
+                          ? { color: '#7db8e8', borderColor: 'rgba(125,184,232,.3)', background: 'rgba(125,184,232,.08)' }
+                          : { color: 'var(--text-dim)', borderColor: 'var(--border)', background: 'rgba(255,255,255,.04)' })
+                      }}>
+                        {f.order === undefined ? '특별출연' : f.order <= 2 ? '주연' : f.order <= 9 ? '조연' : '특별출연'}
+                      </span>
+                    </div>
+                  </td>
                   <td style={{ padding: '10px 12px' }}>
                     <span style={{ display: 'inline-block', fontSize: '10px', padding: '2px 7px', borderRadius: '20px', border: '1px solid', color: isTV ? '#9b8de8' : '#7db8e8', borderColor: isTV ? 'rgba(155,141,232,.3)' : 'rgba(125,184,232,.3)', background: isTV ? 'rgba(155,141,232,.08)' : 'rgba(125,184,232,.08)', whiteSpace: 'nowrap' }}>{isTV ? '드라마' : '영화'}</span>
                   </td>
