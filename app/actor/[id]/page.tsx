@@ -61,7 +61,7 @@ export default function ActorPage() {
               {age && <div><div style={{ fontSize: '22px', fontWeight: 700, color: 'var(--gold)', fontFamily: 'Cormorant Garamond, serif' }}>{age}</div><div style={{ fontSize: '10px', color: 'var(--text-muted)', marginTop: '2px' }}>나이</div></div>}
               {detail.birthday && <div><div style={{ fontSize: '22px', fontWeight: 700, color: 'var(--gold)', fontFamily: 'Cormorant Garamond, serif' }}>{detail.birthday.slice(0,4)}</div><div style={{ fontSize: '10px', color: 'var(--text-muted)', marginTop: '2px' }}>출생</div></div>}
             </div>
-            {detail.biography && <div style={{ fontSize: '13px', color: 'var(--text-muted)', lineHeight: 1.8, marginBottom: '12px' }}>{detail.biography.slice(0,200)}{detail.biography.length > 200 ? '...' : ''}</div>}
+
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
               <a style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', background: 'var(--surface2)', border: '1px solid var(--border)', color: 'var(--text-muted)', fontSize: '12px', padding: '5px 12px', borderRadius: '20px', cursor: 'pointer', textDecoration: 'none' }} onClick={() => window.open(`https://namu.wiki/w/${encodeURIComponent(koreanName)}`, '_blank')}>📖 나무위키</a>
               <a style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', background: 'var(--surface2)', border: '1px solid var(--border)', color: 'var(--text-muted)', fontSize: '12px', padding: '5px 12px', borderRadius: '20px', cursor: 'pointer', textDecoration: 'none' }} href={`https://search.naver.com/search.naver?query=${encodeURIComponent(koreanName + ' 배우')}`} target="_blank">🔍 네이버</a>
@@ -94,14 +94,25 @@ export default function ActorPage() {
                       onMouseOut={e => (e.currentTarget.style.color = 'var(--text)')}
                     >{f.title || f.name || '-'}</span>
                   </td>
+<td style={{ padding: '10px 12px' }}>
+  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+    {f.character
+      ? <span style={{ display: 'inline-block', background: ko ? 'rgba(201,168,76,.1)' : 'rgba(255,255,255,.04)', border: `1px solid ${ko ? 'rgba(201,168,76,.2)' : 'var(--border)'}`, color: ko ? 'var(--gold-light)' : 'var(--text-dim)', fontSize: '11px', padding: '2px 8px', borderRadius: '20px', fontStyle: ko ? 'normal' : 'italic' }}>{f.character}</span>
+      : <span style={{ color: 'var(--text-dim)', fontSize: '13px' }}>-</span>
+    }
+    <span style={{ display: 'inline-block', fontSize: '10px', padding: '2px 7px', borderRadius: '20px', border: '1px solid', whiteSpace: 'nowrap',
+      ...(f.order === undefined ? {} : f.order <= 2
+        ? { color: '#e8c97a', borderColor: 'rgba(232,201,122,.3)', background: 'rgba(232,201,122,.08)' }
+        : f.order <= 9
+        ? { color: '#7db8e8', borderColor: 'rgba(125,184,232,.3)', background: 'rgba(125,184,232,.08)' }
+        : { color: 'var(--text-dim)', borderColor: 'var(--border)', background: 'rgba(255,255,255,.04)' })
+    }}>
+      {f.order === undefined ? '특별출연' : f.order <= 2 ? '주연' : f.order <= 9 ? '조연' : '특별출연'}
+    </span>
+  </div>
+</td>
                   <td style={{ padding: '10px 12px' }}>
-                    {f.character
-                      ? <span style={{ display: 'inline-block', background: ko ? 'rgba(201,168,76,.1)' : 'rgba(255,255,255,.04)', border: `1px solid ${ko ? 'rgba(201,168,76,.2)' : 'var(--border)'}`, color: ko ? 'var(--gold-light)' : 'var(--text-dim)', fontSize: '11px', padding: '2px 8px', borderRadius: '20px', fontStyle: ko ? 'normal' : 'italic' }}>{f.character}</span>
-                      : <span style={{ color: 'var(--text-dim)', fontSize: '13px' }}>-</span>
-                    }
-                  </td>
-                  <td style={{ padding: '10px 12px' }}>
-                    <span style={{ display: 'inline-block', fontSize: '10px', padding: '2px 7px', borderRadius: '20px', border: '1px solid', color: isTV ? '#9b8de8' : '#7db8e8', borderColor: isTV ? 'rgba(155,141,232,.3)' : 'rgba(125,184,232,.3)', background: isTV ? 'rgba(155,141,232,.08)' : 'rgba(125,184,232,.08)' }}>{isTV ? '드라마' : '영화'}</span>
+                    <span style={{ display: 'inline-block', fontSize: '10px', padding: '2px 7px', borderRadius: '20px', border: '1px solid', color: isTV ? '#9b8de8' : '#7db8e8', borderColor: isTV ? 'rgba(155,141,232,.3)' : 'rgba(125,184,232,.3)', background: isTV ? 'rgba(155,141,232,.08)' : 'rgba(125,184,232,.08)', whiteSpace: 'nowrap' }}>{isTV ? '드라마' : '영화'}</span>
                   </td>
                 </tr>
               )
