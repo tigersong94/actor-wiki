@@ -12,22 +12,26 @@ async function tmdb(path: string, params: Record<string, string> = {}) {
   return res.json()
 }
 
-// ── localStorage 하트 헬퍼 ──────────────────────────────────────
 function hasLiked(type: 'post' | 'comment', id: number): boolean {
   if (typeof window === 'undefined') return false
-  const key = `liked_${type}_${id}`
-  return localStorage.getItem(key) === '1'
+  return localStorage.getItem(`liked_${type}_${id}`) === '1'
 }
 function setLiked(type: 'post' | 'comment', id: number) {
   if (typeof window === 'undefined') return
   localStorage.setItem(`liked_${type}_${id}`, '1')
 }
 
+interface TagItem {
+  id: number
+  name: string
+  type: string // 'movie' | 'tv' | 'person'
+}
+
 // ── 작품 검색 인풋 ─────────────────────────────────────────────
 function MovieSearchInput({ selectedMovies, onAdd, onRemove }: {
-  selectedMovies: string[]
-  onAdd: (name: string) => void
-  onRemove: (name: string) => void
+  selectedMovies: TagItem[]
+  onAdd: (item: TagItem) => void
+  onRemove: (id: number) => void
 }) {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<any[]>([])
@@ -46,10 +50,10 @@ function MovieSearchInput({ selectedMovies, onAdd, onRemove }: {
     }, 300)
   }
 
-  function onSelect(name: string) {
-    if (selectedMovies.includes(name)) return
+  function onSelect(item: TagItem) {
+    if (selectedMovies.find(m => m.id === item.id)) return
     if (selectedMovies.length >= 3) return
-    onAdd(name)
+    onAdd(item)
     setQuery('')
     setResults([])
     setOpen(false)
@@ -60,9 +64,9 @@ function MovieSearchInput({ selectedMovies, onAdd, onRemove }: {
       <label style={{ fontSize: '11px', letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '6px', display: 'block' }}>작품 말머리 (최대 3개)</label>
       <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '8px' }}>
         {selectedMovies.map(m => (
-          <div key={m} style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', background: 'rgba(125,184,232,.12)', border: '1px solid rgba(125,184,232,.2)', color: '#7db8e8', fontSize: '12px', padding: '3px 10px', borderRadius: '20px' }}>
-            {m}
-            <span onClick={() => onRemove(m)} style={{ cursor: 'pointer', opacity: .7, fontSize: '14px' }}>×</span>
+          <div key={m.id} style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', background: 'rgba(125,184,232,.12)', border: '1px solid rgba(125,184,232,.2)', color: '#7db8e8', fontSize: '12px', padding: '3px 10px', borderRadius: '20px' }}>
+            {m.name}
+            <span onClick={() => onRemove(m.id)} style={{ cursor: 'pointer', opacity: .7, fontSize: '14px' }}>×</span>
           </div>
         ))}
       </div>
@@ -80,9 +84,9 @@ function MovieSearchInput({ selectedMovies, onAdd, onRemove }: {
                 const name = r.title || r.name || ''
                 const type = r.media_type === 'tv' ? '드라마' : '영화'
                 const img = r.poster_path
-                const already = selectedMovies.includes(name)
+                const already = !!selectedMovies.find(m => m.id === r.id)
                 return (
-                  <div key={r.id} onClick={() => !already && onSelect(name)}
+                  <div key={r.id} onClick={() => !already && onSelect({ id: r.id, name, type: r.media_type })}
                     style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', cursor: already ? 'default' : 'pointer', borderBottom: '1px solid var(--border)', opacity: already ? .4 : 1 }}
                     onMouseOver={e => { if (!already) e.currentTarget.style.background = 'var(--surface2)' }}
                     onMouseOut={e => { e.currentTarget.style.background = 'transparent' }}
@@ -106,9 +110,9 @@ function MovieSearchInput({ selectedMovies, onAdd, onRemove }: {
 
 // ── 배우 검색 인풋 ─────────────────────────────────────────────
 function ActorSearchInput({ selectedActors, onAdd, onRemove }: {
-  selectedActors: string[]
-  onAdd: (name: string) => void
-  onRemove: (name: string) => void
+  selectedActors: TagItem[]
+  onAdd: (item: TagItem) => void
+  onRemove: (id: number) => void
 }) {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<any[]>([])
@@ -127,10 +131,10 @@ function ActorSearchInput({ selectedActors, onAdd, onRemove }: {
     }, 300)
   }
 
-  function onSelect(name: string) {
-    if (selectedActors.includes(name)) return
+  function onSelect(item: TagItem) {
+    if (selectedActors.find(a => a.id === item.id)) return
     if (selectedActors.length >= 3) return
-    onAdd(name)
+    onAdd(item)
     setQuery('')
     setResults([])
     setOpen(false)
@@ -141,9 +145,9 @@ function ActorSearchInput({ selectedActors, onAdd, onRemove }: {
       <label style={{ fontSize: '11px', letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '6px', display: 'block' }}>배우 말머리 (최대 3개)</label>
       <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '8px' }}>
         {selectedActors.map(a => (
-          <div key={a} style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', background: 'rgba(201,168,76,.12)', border: '1px solid rgba(201,168,76,.2)', color: 'var(--gold-light)', fontSize: '12px', padding: '3px 10px', borderRadius: '20px' }}>
-            {a}
-            <span onClick={() => onRemove(a)} style={{ cursor: 'pointer', opacity: .7, fontSize: '14px' }}>×</span>
+          <div key={a.id} style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', background: 'rgba(201,168,76,.12)', border: '1px solid rgba(201,168,76,.2)', color: 'var(--gold-light)', fontSize: '12px', padding: '3px 10px', borderRadius: '20px' }}>
+            {a.name}
+            <span onClick={() => onRemove(a.id)} style={{ cursor: 'pointer', opacity: .7, fontSize: '14px' }}>×</span>
           </div>
         ))}
       </div>
@@ -158,9 +162,9 @@ function ActorSearchInput({ selectedActors, onAdd, onRemove }: {
           {open && results.length > 0 && (
             <div style={{ position: 'absolute', top: 'calc(100% + 4px)', left: 0, right: 0, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', zIndex: 100, maxHeight: '240px', overflowY: 'auto', boxShadow: '0 8px 24px rgba(0,0,0,.4)' }}>
               {results.map(p => {
-                const already = selectedActors.includes(p.name)
+                const already = !!selectedActors.find(a => a.id === p.id)
                 return (
-                  <div key={p.id} onClick={() => !already && onSelect(p.name)}
+                  <div key={p.id} onClick={() => !already && onSelect({ id: p.id, name: p.name, type: 'person' })}
                     style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', cursor: already ? 'default' : 'pointer', borderBottom: '1px solid var(--border)', opacity: already ? .4 : 1 }}
                     onMouseOver={e => { if (!already) e.currentTarget.style.background = 'var(--surface2)' }}
                     onMouseOut={e => { e.currentTarget.style.background = 'transparent' }}
@@ -184,17 +188,29 @@ function ActorSearchInput({ selectedActors, onAdd, onRemove }: {
 
 // ── 포스트 카드 ────────────────────────────────────────────────
 function PostCard({ post, onLike, onClick }: { post: any, onLike: (id: number) => void, onClick: (post: any) => void }) {
-  const movies: string[] = post.movies || []
-  const actors: string[] = post.actors || []
+  const router = useRouter()
+  const movies: TagItem[] = (post.movies || []).map((m: any) => typeof m === 'string' ? { id: 0, name: m, type: 'movie' } : m)
+  const actors: TagItem[] = (post.actors || []).map((a: any) => typeof a === 'string' ? { id: 0, name: a, type: 'person' } : a)
   const liked = hasLiked('post', post.id)
 
   return (
-<div className="post-card" onClick={() => onClick(post)}>
-  <div className="post-card-tags">
-    {movies.map(m => <span key={m} className="post-tag tag-movie" onClick={e => { e.stopPropagation(); router.push(`/search?q=${encodeURIComponent(m)}`) }}>{m}</span>)}
-    {actors.map(a => <span key={a} className="post-tag tag-actor" onClick={e => { e.stopPropagation(); router.push(`/search?q=${encodeURIComponent(a)}`) }}>{a}</span>)}
+    <div className="post-card" onClick={() => onClick(post)}>
+      <div className="post-card-tags">
+        {movies.map(m => (
+          <span key={m.id || m.name} className="post-tag tag-movie" onClick={e => {
+            e.stopPropagation()
+            if (m.id && m.id !== 0) router.push(`/${m.type === 'tv' ? 'tv' : 'movie'}/${m.id}`)
+            else router.push(`/search?q=${encodeURIComponent(m.name)}`)
+          }}>{m.name}</span>
+        ))}
+        {actors.map(a => (
+          <span key={a.id || a.name} className="post-tag tag-actor" onClick={e => {
+            e.stopPropagation()
+            if (a.id && a.id !== 0) router.push(`/actor/${a.id}`)
+            else router.push(`/search?q=${encodeURIComponent(a.name)}`)
+          }}>{a.name}</span>
+        ))}
       </div>
-      {/* 제목 없이 본문만 */}
       <div className="post-card-body" style={{ marginTop: movies.length + actors.length > 0 ? '10px' : '0' }}>
         {(post.body || '').replace(/\n/g, ' ')}
       </div>
@@ -213,7 +229,7 @@ function PostCard({ post, onLike, onClick }: { post: any, onLike: (id: number) =
   )
 }
 
-// ── 댓글 아이템 (대댓글 포함) ───────────────────────────────────
+// ── 댓글 아이템 ────────────────────────────────────────────────
 function CommentItem({ comment, allComments, onLike, onReply }: {
   comment: any
   allComments: any[]
@@ -225,7 +241,6 @@ function CommentItem({ comment, allComments, onLike, onReply }: {
 
   return (
     <div>
-      {/* 원댓글 */}
       <div className="comment-item">
         <div className="comment-author">
           {comment.nickname || '익명'}
@@ -233,31 +248,16 @@ function CommentItem({ comment, allComments, onLike, onReply }: {
         </div>
         <div className="comment-body">{comment.body}</div>
         <div style={{ display: 'flex', gap: '12px', marginTop: '6px', fontSize: '12px', color: 'var(--text-dim)' }}>
-          <span
-            style={{ cursor: liked ? 'default' : 'pointer', color: liked ? 'var(--gold)' : undefined }}
-            onClick={() => onLike(comment.id, comment.likes || 0)}
-          >
+          <span style={{ cursor: liked ? 'default' : 'pointer', color: liked ? 'var(--gold)' : undefined }} onClick={() => onLike(comment.id, comment.likes || 0)}>
             {liked ? '♥' : '♡'} {comment.likes || 0}
           </span>
-          <span
-            style={{ cursor: 'pointer' }}
-            onClick={() => onReply(comment.id, comment.nickname || '익명')}
-          >
-            답글
-          </span>
+          <span style={{ cursor: 'pointer' }} onClick={() => onReply(comment.id, comment.nickname || '익명')}>답글</span>
         </div>
       </div>
-
-      {/* 대댓글 */}
       {replies.map(r => {
         const rLiked = hasLiked('comment', r.id)
         return (
-          <div key={r.id} className="comment-item" style={{
-            marginLeft: '24px',
-            paddingLeft: '14px',
-            borderLeft: '2px solid var(--border)',
-            background: 'rgba(255,255,255,0.02)'
-          }}>
+          <div key={r.id} className="comment-item" style={{ marginLeft: '24px', paddingLeft: '14px', borderLeft: '2px solid var(--border)', background: 'rgba(255,255,255,0.02)' }}>
             <div className="comment-author" style={{ fontSize: '12px' }}>
               <span style={{ color: 'var(--text-dim)', marginRight: '4px' }}>↳</span>
               {r.nickname || '익명'}
@@ -265,10 +265,7 @@ function CommentItem({ comment, allComments, onLike, onReply }: {
             </div>
             <div className="comment-body">{r.body}</div>
             <div style={{ display: 'flex', gap: '12px', marginTop: '6px', fontSize: '12px', color: 'var(--text-dim)' }}>
-              <span
-                style={{ cursor: rLiked ? 'default' : 'pointer', color: rLiked ? 'var(--gold)' : undefined }}
-                onClick={() => onLike(r.id, r.likes || 0)}
-              >
+              <span style={{ cursor: rLiked ? 'default' : 'pointer', color: rLiked ? 'var(--gold)' : undefined }} onClick={() => onLike(r.id, r.likes || 0)}>
                 {rLiked ? '♥' : '♡'} {r.likes || 0}
               </span>
             </div>
@@ -288,18 +285,14 @@ function PostDetail({ post, onBack, onLike }: { post: any, onBack: () => void, o
   const [commentPw, setCommentPw] = useState('')
   const [replyTo, setReplyTo] = useState<{ id: number, nick: string } | null>(null)
   const [copied, setCopied] = useState(false)
-  const movies: string[] = post.movies || []
-  const actors: string[] = post.actors || []
+  const movies: TagItem[] = (post.movies || []).map((m: any) => typeof m === 'string' ? { id: 0, name: m, type: 'movie' } : m)
+  const actors: TagItem[] = (post.actors || []).map((a: any) => typeof a === 'string' ? { id: 0, name: a, type: 'person' } : a)
   const postLiked = hasLiked('post', post.id)
 
   useEffect(() => { loadComments() }, [post.id])
 
   async function loadComments() {
-    const { data, error } = await supabase
-      .from('comments')
-      .select('*')
-      .eq('post_id', post.id)
-      .order('created_at', { ascending: true })
+    const { data, error } = await supabase.from('comments').select('*').eq('post_id', post.id).order('created_at', { ascending: true })
     if (error) console.error('댓글 로드 오류:', error)
     setComments(data || [])
   }
@@ -336,64 +329,49 @@ function PostDetail({ post, onBack, onLike }: { post: any, onBack: () => void, o
     })
   }
 
-  // 최상위 댓글만 필터 (parent_id가 null인 것)
   const topLevelComments = comments.filter(c => !c.parent_id)
 
   return (
     <div>
       <button className="back-btn" onClick={onBack}>← 커뮤니티로</button>
       <div className="post-detail">
-<div className="post-detail-tags">
-  {movies.map(m => <span key={m} className="post-tag tag-movie" onClick={() => router.push(`/search?q=${encodeURIComponent(m)}`)} style={{ cursor: 'pointer' }}>{m}</span>)}
-  {actors.map(a => <span key={a} className="post-tag tag-actor" onClick={() => router.push(`/search?q=${encodeURIComponent(a)}`)} style={{ cursor: 'pointer' }}>{a}</span>)}
-</div>
-
-        {/* 제목 없이 본문만 */}
+        <div className="post-detail-tags">
+          {movies.map(m => (
+            <span key={m.id || m.name} className="post-tag tag-movie" style={{ cursor: 'pointer' }} onClick={() => {
+              if (m.id && m.id !== 0) router.push(`/${m.type === 'tv' ? 'tv' : 'movie'}/${m.id}`)
+              else router.push(`/search?q=${encodeURIComponent(m.name)}`)
+            }}>{m.name}</span>
+          ))}
+          {actors.map(a => (
+            <span key={a.id || a.name} className="post-tag tag-actor" style={{ cursor: 'pointer' }} onClick={() => {
+              if (a.id && a.id !== 0) router.push(`/actor/${a.id}`)
+              else router.push(`/search?q=${encodeURIComponent(a.name)}`)
+            }}>{a.name}</span>
+          ))}
+        </div>
         <div className="post-detail-body" style={{ marginTop: movies.length + actors.length > 0 ? '14px' : '0' }}>
           {(post.body || '').split('\n').map((l: string, i: number) => <p key={i}>{l || '\u00A0'}</p>)}
         </div>
-
         <div className="post-detail-meta" style={{ marginTop: '16px', display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap' }}>
           <span>{post.nickname}</span>
           <span>{new Date(post.created_at).toLocaleDateString('ko-KR')}</span>
-          <span
-            style={{ cursor: postLiked ? 'default' : 'pointer', color: postLiked ? 'var(--gold)' : undefined }}
-            onClick={() => onLike(post.id)}
-          >
+          <span style={{ cursor: postLiked ? 'default' : 'pointer', color: postLiked ? 'var(--gold)' : undefined }} onClick={() => onLike(post.id)}>
             {postLiked ? '♥' : '♡'} {post.likes || 0}
           </span>
           {post.edited_at && <span style={{ color: 'var(--text-dim)', fontSize: '11px' }}>수정됨</span>}
-          {/* URL 공유 버튼 */}
-          <span
-            onClick={sharePost}
-            style={{ cursor: 'pointer', fontSize: '12px', color: copied ? 'var(--gold)' : 'var(--text-muted)', marginLeft: 'auto', userSelect: 'none' }}
-          >
+          <span onClick={sharePost} style={{ cursor: 'pointer', fontSize: '12px', color: copied ? 'var(--gold)' : 'var(--text-muted)', marginLeft: 'auto', userSelect: 'none' }}>
             {copied ? '✓ 링크 복사됨' : '🔗 공유'}
           </span>
         </div>
       </div>
 
-      {/* 댓글 섹션 */}
       <div className="comment-section">
         <div className="comment-head">댓글 {comments.length}개</div>
-
-        {comments.length === 0 && (
-          <div style={{ padding: '12px 0', color: 'var(--text-dim)', fontSize: '13px' }}>첫 댓글을 달아보세요!</div>
-        )}
-
+        {comments.length === 0 && <div style={{ padding: '12px 0', color: 'var(--text-dim)', fontSize: '13px' }}>첫 댓글을 달아보세요!</div>}
         {topLevelComments.map(c => (
-          <CommentItem
-            key={c.id}
-            comment={c}
-            allComments={comments}
-            onLike={likeComment}
-            onReply={(id, nick) => setReplyTo({ id, nick })}
-          />
+          <CommentItem key={c.id} comment={c} allComments={comments} onLike={likeComment} onReply={(id, nick) => setReplyTo({ id, nick })} />
         ))}
-
-        {/* 댓글 입력 */}
         <div style={{ marginTop: '16px', borderTop: '1px solid var(--border)', paddingTop: '16px' }}>
-          {/* 답글 대상 표시 */}
           {replyTo && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px', fontSize: '12px', color: 'var(--text-muted)', background: 'var(--surface2)', padding: '8px 12px', borderRadius: 'var(--radius)' }}>
               <span>↳ <strong style={{ color: 'var(--text)' }}>{replyTo.nick}</strong>님에게 답글</span>
@@ -401,27 +379,11 @@ function PostDetail({ post, onBack, onLike }: { post: any, onBack: () => void, o
             </div>
           )}
           <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
-            <input
-              style={{ flex: 1, background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '8px 12px', color: 'var(--text)', fontFamily: 'Noto Sans KR', fontSize: '13px', outline: 'none' }}
-              value={commentNick}
-              onChange={e => setCommentNick(e.target.value)}
-              placeholder="닉네임 (선택)"
-            />
-            <input
-              style={{ flex: 1, background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '8px 12px', color: 'var(--text)', fontFamily: 'Noto Sans KR', fontSize: '13px', outline: 'none' }}
-              value={commentPw}
-              onChange={e => setCommentPw(e.target.value)}
-              placeholder="비번 (선택)"
-              type="password"
-            />
+            <input style={{ flex: 1, background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '8px 12px', color: 'var(--text)', fontFamily: 'Noto Sans KR', fontSize: '13px', outline: 'none' }} value={commentNick} onChange={e => setCommentNick(e.target.value)} placeholder="닉네임 (선택)" />
+            <input style={{ flex: 1, background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '8px 12px', color: 'var(--text)', fontFamily: 'Noto Sans KR', fontSize: '13px', outline: 'none' }} value={commentPw} onChange={e => setCommentPw(e.target.value)} placeholder="비번 (선택)" type="password" />
           </div>
           <div className="comment-input-row">
-            <input
-              value={commentBody}
-              onChange={e => setCommentBody(e.target.value)}
-              placeholder={replyTo ? `${replyTo.nick}님에게 답글...` : '댓글을 입력하세요...'}
-              onKeyDown={e => e.key === 'Enter' && submitComment()}
-            />
+            <input value={commentBody} onChange={e => setCommentBody(e.target.value)} placeholder={replyTo ? `${replyTo.nick}님에게 답글...` : '댓글을 입력하세요...'} onKeyDown={e => e.key === 'Enter' && submitComment()} />
             <button onClick={submitComment}>등록</button>
           </div>
         </div>
@@ -439,8 +401,8 @@ export default function Community() {
   const [showModal, setShowModal] = useState(false)
   const [selectedPost, setSelectedPost] = useState<any>(null)
   const [form, setForm] = useState({
-    movies: [] as string[],
-    actors: [] as string[],
+    movies: [] as TagItem[],
+    actors: [] as TagItem[],
     body: '',
     nickname: '',
     password: ''
@@ -449,10 +411,7 @@ export default function Community() {
   useEffect(() => { loadPosts() }, [])
 
   async function loadPosts() {
-    const { data, error } = await supabase
-      .from('posts')
-      .select('*')
-      .order('created_at', { ascending: false })
+    const { data, error } = await supabase.from('posts').select('*').order('created_at', { ascending: false })
     if (error) console.error('포스트 로드 오류:', error)
     setPosts(data || [])
     setLoading(false)
@@ -466,10 +425,7 @@ export default function Community() {
     const newLikes = (post.likes || 0) + 1
     await supabase.from('posts').update({ likes: newLikes }).eq('id', id)
     setPosts(prev => prev.map(p => p.id === id ? { ...p, likes: newLikes } : p))
-    // 상세 보기 중이면 selectedPost도 업데이트
-    if (selectedPost?.id === id) {
-      setSelectedPost((prev: any) => ({ ...prev, likes: newLikes }))
-    }
+    if (selectedPost?.id === id) setSelectedPost((prev: any) => ({ ...prev, likes: newLikes }))
   }
 
   async function submitPost() {
@@ -478,7 +434,7 @@ export default function Community() {
     const { error } = await supabase.from('posts').insert([{
       movies: form.movies,
       actors: form.actors,
-      title: '',          // DB 컬럼 호환 유지 (빈 문자열)
+      title: '',
       body: form.body,
       nickname: form.nickname || '익명',
       password: form.password,
@@ -491,14 +447,14 @@ export default function Community() {
 
   const displayPosts = posts.filter(p => {
     if (filter !== 'all') {
-      const movies: string[] = p.movies || []
-      const actors: string[] = p.actors || []
-      if (!movies.includes(filter) && !actors.includes(filter)) return false
+      const movies: TagItem[] = (p.movies || []).map((m: any) => typeof m === 'string' ? { id: 0, name: m, type: 'movie' } : m)
+      const actors: TagItem[] = (p.actors || []).map((a: any) => typeof a === 'string' ? { id: 0, name: a, type: 'person' } : a)
+      if (!movies.find(m => m.name === filter) && !actors.find(a => a.name === filter)) return false
     }
     return true
   })
 
-const hotPosts = [...posts]
+  const hotPosts = [...posts]
     .filter(p => (p.likes || 0) > 0 || (p.comment_count || 0) > 0)
     .sort((a, b) => {
       const scoreA = (a.likes || 0) * 2 + (a.comment_count || 0)
@@ -508,32 +464,33 @@ const hotPosts = [...posts]
 
   const finalPosts = tab === 'hot' ? hotPosts : displayPosts
 
-  const allTags = posts.flatMap(p => [...(p.movies || []), ...(p.actors || [])])
+  const allTags = posts.flatMap(p => [
+    ...(p.movies || []).map((m: any) => typeof m === 'string' ? m : m.name),
+    ...(p.actors || []).map((a: any) => typeof a === 'string' ? a : a.name)
+  ])
   const tagCount: Record<string, number> = {}
   allTags.forEach(t => { tagCount[t] = (tagCount[t] || 0) + 1 })
-  const topMovieTags = [...new Set(posts.flatMap(p => p.movies || []))].slice(0, 6)
-  const topActorTags = [...new Set(posts.flatMap(p => p.actors || []))].slice(0, 6)
+  const topMovieTags = [...new Set(posts.flatMap(p => (p.movies || []).map((m: any) => typeof m === 'string' ? m : m.name)))].slice(0, 6)
+  const topActorTags = [...new Set(posts.flatMap(p => (p.actors || []).map((a: any) => typeof a === 'string' ? a : a.name)))].slice(0, 6)
 
   if (selectedPost) {
     return (
       <div className="layout">
         <main>
-          <PostDetail
-            post={selectedPost}
-            onBack={() => { setSelectedPost(null); loadPosts() }}
-            onLike={likePost}
-          />
+          <PostDetail post={selectedPost} onBack={() => { setSelectedPost(null); loadPosts() }} onLike={likePost} />
         </main>
         <aside>
           <div className="sidebar-block">
             <div className="sidebar-title">관련 바로가기</div>
             <ul className="sidebar-list">
-              {(selectedPost.movies || []).map((m: string) => (
-                <li key={m} onClick={() => { setFilter(m); setSelectedPost(null) }}>{m} 포스팅<span className="cnt">→</span></li>
-              ))}
-              {(selectedPost.actors || []).map((a: string) => (
-                <li key={a} onClick={() => { setFilter(a); setSelectedPost(null) }}>{a} 포스팅<span className="cnt">→</span></li>
-              ))}
+              {(selectedPost.movies || []).map((m: any) => {
+                const name = typeof m === 'string' ? m : m.name
+                return <li key={name} onClick={() => { setFilter(name); setSelectedPost(null) }}>{name} 포스팅<span className="cnt">→</span></li>
+              })}
+              {(selectedPost.actors || []).map((a: any) => {
+                const name = typeof a === 'string' ? a : a.name
+                return <li key={name} onClick={() => { setFilter(name); setSelectedPost(null) }}>{name} 포스팅<span className="cnt">→</span></li>
+              })}
             </ul>
           </div>
         </aside>
@@ -544,7 +501,6 @@ const hotPosts = [...posts]
   return (
     <div className="layout">
       <main>
-        {/* 탭 */}
         <div style={{ display: 'flex', borderBottom: '1px solid var(--border)', marginBottom: '16px' }}>
           <button onClick={() => setTab('all')} style={{ background: 'none', border: 'none', borderBottom: `2px solid ${tab === 'all' ? 'var(--gold)' : 'transparent'}`, color: tab === 'all' ? 'var(--gold)' : 'var(--text-muted)', fontFamily: 'Noto Sans KR', fontSize: '13px', fontWeight: 500, padding: '10px 18px', cursor: 'pointer', marginBottom: '-1px' }}>전체</button>
           <button onClick={() => setTab('hot')} style={{ background: 'none', border: 'none', borderBottom: `2px solid ${tab === 'hot' ? 'var(--gold)' : 'transparent'}`, color: tab === 'hot' ? 'var(--gold)' : 'var(--text-muted)', fontFamily: 'Noto Sans KR', fontSize: '13px', fontWeight: 500, padding: '10px 18px', cursor: 'pointer', marginBottom: '-1px' }}>🔥 인기</button>
@@ -553,7 +509,6 @@ const hotPosts = [...posts]
           </div>
         </div>
 
-        {/* 필터 */}
         {filter !== 'all' && (
           <div style={{ marginBottom: '12px' }}>
             <div className="filter-chip active">{filter} <span onClick={() => setFilter('all')} style={{ marginLeft: '4px', cursor: 'pointer' }}>×</span></div>
@@ -566,9 +521,7 @@ const hotPosts = [...posts]
           <div className="post-empty">{tab === 'hot' ? '아직 인기 포스팅이 없어요.' : '포스팅이 없어요. 첫 번째로 작성해보세요!'}</div>
         ) : (
           <div className="post-feed">
-            {finalPosts.map(p => (
-              <PostCard key={p.id} post={p} onLike={likePost} onClick={setSelectedPost} />
-            ))}
+            {finalPosts.map(p => <PostCard key={p.id} post={p} onLike={likePost} onClick={setSelectedPost} />)}
           </div>
         )}
       </main>
@@ -577,75 +530,46 @@ const hotPosts = [...posts]
         <div className="sidebar-block">
           <div className="sidebar-title">인기 작품 말머리</div>
           <ul className="sidebar-list">
-            {topMovieTags.map(tag => (
-              <li key={tag} onClick={() => { setFilter(tag); setTab('all') }}>{tag}<span className="cnt">{tagCount[tag]}</span></li>
-            ))}
+            {topMovieTags.map(tag => <li key={tag} onClick={() => { setFilter(tag); setTab('all') }}>{tag}<span className="cnt">{tagCount[tag]}</span></li>)}
           </ul>
         </div>
         <div className="sidebar-block">
           <div className="sidebar-title">인기 배우 말머리</div>
           <ul className="sidebar-list">
-            {topActorTags.map(tag => (
-              <li key={tag} onClick={() => { setFilter(tag); setTab('all') }}>{tag}<span className="cnt">{tagCount[tag]}</span></li>
-            ))}
+            {topActorTags.map(tag => <li key={tag} onClick={() => { setFilter(tag); setTab('all') }}>{tag}<span className="cnt">{tagCount[tag]}</span></li>)}
           </ul>
         </div>
       </aside>
 
-      {/* 포스팅 모달 */}
       {showModal && (
-        <div
-          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.7)', backdropFilter: 'blur(4px)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-          onClick={e => e.target === e.currentTarget && setShowModal(false)}
-        >
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.7)', backdropFilter: 'blur(4px)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={e => e.target === e.currentTarget && setShowModal(false)}>
           <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '10px', width: '540px', maxWidth: '95vw', maxHeight: '90vh', overflowY: 'auto', padding: '28px' }}>
-           <div style={{ fontFamily: 'Jua, sans-serif', fontSize: '18px', fontWeight: 400, marginBottom: '6px' }}>포스팅</div>
+            <div style={{ fontFamily: 'Jua, sans-serif', fontSize: '18px', fontWeight: 400, marginBottom: '6px' }}>포스팅</div>
             <div style={{ color: 'var(--text-muted)', fontSize: '12px', marginBottom: '20px' }}>말머리는 작품/배우 각각 최대 3개까지 선택할 수 있어요.</div>
-
             <MovieSearchInput
               selectedMovies={form.movies}
-              onAdd={name => setForm(f => ({ ...f, movies: [...f.movies, name] }))}
-              onRemove={name => setForm(f => ({ ...f, movies: f.movies.filter(m => m !== name) }))}
+              onAdd={item => setForm(f => ({ ...f, movies: [...f.movies, item] }))}
+              onRemove={id => setForm(f => ({ ...f, movies: f.movies.filter(m => m.id !== id) }))}
             />
             <ActorSearchInput
               selectedActors={form.actors}
-              onAdd={name => setForm(f => ({ ...f, actors: [...f.actors, name] }))}
-              onRemove={name => setForm(f => ({ ...f, actors: f.actors.filter(a => a !== name) }))}
+              onAdd={item => setForm(f => ({ ...f, actors: [...f.actors, item] }))}
+              onRemove={id => setForm(f => ({ ...f, actors: f.actors.filter(a => a.id !== id) }))}
             />
-
-            {/* 제목 필드 제거 — 본문만 */}
             <div style={{ marginBottom: '14px' }}>
               <label style={{ fontSize: '11px', letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '6px', display: 'block' }}>내용</label>
-              <textarea
-                style={{ width: '100%', background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '10px 14px', color: 'var(--text)', fontFamily: 'Noto Sans KR', fontSize: '13px', outline: 'none', minHeight: '140px', resize: 'vertical', lineHeight: 1.7 }}
-                value={form.body}
-                onChange={e => setForm(f => ({ ...f, body: e.target.value }))}
-                placeholder="자유롭게 작성하세요..."
-              />
+              <textarea style={{ width: '100%', background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '10px 14px', color: 'var(--text)', fontFamily: 'Noto Sans KR', fontSize: '13px', outline: 'none', minHeight: '140px', resize: 'vertical', lineHeight: 1.7 }} value={form.body} onChange={e => setForm(f => ({ ...f, body: e.target.value }))} placeholder="자유롭게 작성하세요..." />
             </div>
-
             <div style={{ display: 'flex', gap: '8px', marginBottom: '14px' }}>
               <div style={{ flex: 1 }}>
                 <label style={{ fontSize: '11px', letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '6px', display: 'block' }}>닉네임 (선택)</label>
-                <input
-                  style={{ width: '100%', background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '10px 14px', color: 'var(--text)', fontFamily: 'Noto Sans KR', fontSize: '13px', outline: 'none' }}
-                  value={form.nickname}
-                  onChange={e => setForm(f => ({ ...f, nickname: e.target.value }))}
-                  placeholder="익명"
-                />
+                <input style={{ width: '100%', background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '10px 14px', color: 'var(--text)', fontFamily: 'Noto Sans KR', fontSize: '13px', outline: 'none' }} value={form.nickname} onChange={e => setForm(f => ({ ...f, nickname: e.target.value }))} placeholder="익명" />
               </div>
               <div style={{ flex: 1 }}>
                 <label style={{ fontSize: '11px', letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '6px', display: 'block' }}>비번 (수정/삭제용)</label>
-                <input
-                  style={{ width: '100%', background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '10px 14px', color: 'var(--text)', fontFamily: 'Noto Sans KR', fontSize: '13px', outline: 'none' }}
-                  value={form.password}
-                  onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
-                  placeholder="비번 입력"
-                  type="password"
-                />
+                <input style={{ width: '100%', background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '10px 14px', color: 'var(--text)', fontFamily: 'Noto Sans KR', fontSize: '13px', outline: 'none' }} value={form.password} onChange={e => setForm(f => ({ ...f, password: e.target.value }))} placeholder="비번 입력" type="password" />
               </div>
             </div>
-
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
               <button onClick={() => setShowModal(false)} style={{ background: 'none', border: '1px solid var(--border)', color: 'var(--text-muted)', padding: '9px 20px', borderRadius: 'var(--radius)', cursor: 'pointer', fontFamily: 'Noto Sans KR', fontSize: '13px' }}>취소</button>
               <button onClick={submitPost} style={{ background: 'var(--gold)', border: 'none', color: 'var(--bg)', padding: '9px 24px', borderRadius: 'var(--radius)', cursor: 'pointer', fontFamily: 'Noto Sans KR', fontSize: '13px', fontWeight: 700 }}>게시하기</button>
