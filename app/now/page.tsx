@@ -57,7 +57,7 @@ const combined = [
 
   return (
     <div className="now-container">
-      <h1 className="now-title">요즘 볼만한 거</h1>
+      <h1 className="now-title">실시간 인기작</h1>
       <div className="now-grid">
         {/* 영화관 */}
         <div className="now-section">
